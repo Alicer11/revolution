@@ -68,7 +68,7 @@ local Player = Players.LocalPlayer
 local Events = RS:WaitForChild("Events")
 
 game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "By Nichehlikes15",
+    Title = "By Alys_ie",
     Text = "Loading Star Sign Script",
     Duration = 5
 })
@@ -106,7 +106,7 @@ local function makeEmbed(title, fields, color, embedExtra)
         color = color or 65280,
         fields = fields or {},
         --image = { url = IMAGE_URL },
-        footer = { text = "made by Nichehlikes15" }
+        footer = { text = "made by Alys_ie" }
     }
     if type(embedExtra) == "table" then
         for k, v in pairs(embedExtra) do
@@ -143,7 +143,7 @@ task.spawn(function()
         title = "Sign Farm Script Startup",
         color = 65280,
         footer = {
-            text = "Made By NichEhLikes15",
+            text = "Made By Alys_ie",
             icon_url = "https://cdn.nookazon.com/beeswarmsimulator/stickers/Aries_Star_Sign.png"
         },
         timestamp = DateTime.now():ToIsoDate(),
