@@ -25,7 +25,6 @@ local function saveAtlasConfig()
         _G.AtlasConfig = decoded
     end)
 end
-nd
 
 -- Primeira tentativa de salvar (antes do script principal)
 saveAtlasConfig()
