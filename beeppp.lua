@@ -1,3 +1,4 @@
+print("[DEBUG] Inicializando script...")
 --Credit duysuts for orignal owner
 
 -------------------------------------------------
@@ -45,17 +46,22 @@ local AUTO_DELETE_KEEP_KEYWORDS = {
     "sign"
 }
 
+print("[DEBUG] Checando PlaceID...")
 local ALLOWED_PLACEID = 1537690962
 if game.PlaceId ~= ALLOWED_PLACEID then
     warn("Wrong PlaceId, script stopped:", game.PlaceId)
     return
 end
+print("[DEBUG] PlaceID correto!")
 
+print("[DEBUG] Aguardando o Jogo e LocalPlayer...")
 repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
+print("[DEBUG] Jogo carregado!")
 
 local Config = getgenv().Config or {}
 local FeedConfig = Config["Auto Feed"] or {}
 
+print("[DEBUG] Pegando Services...")
 local ts = game:GetService("TweenService")
 local RS = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
@@ -63,15 +69,20 @@ local Http = game:GetService("HttpService")
 local Workspace = game:GetService("Workspace")
 local TeleportService = game:GetService("TeleportService")
 
-local ClientStatCache = require(RS:WaitForChild("ClientStatCache"))
+print("[DEBUG] Pegando ClientStatCache...")
+local ClientStatCache = require(RS:WaitForChild("ClientStatCache", 30))
 local Player = Players.LocalPlayer
-local Events = RS:WaitForChild("Events")
+print("[DEBUG] Pegando Events...")
+local Events = RS:WaitForChild("Events", 30)
 
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "By Alys_ie",
-    Text = "Loading Star Sign Script",
-    Duration = 5
-})
+print("[DEBUG] Tentando enviar notificacao na tela...")
+pcall(function()
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "By Alys_ie",
+        Text = "Loading Star Sign Script",
+        Duration = 5
+    })
+end)
 print("Loading Script...")
 
 getgenv().Config = getgenv().Config or {}
@@ -1116,7 +1127,7 @@ task.spawn(function()
     task.wait(90)
     print("Executando Atlas...")
     pcall(function()
-                    
+        -- Loadstring do Atlas Hosted on GitHub
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris8889/atlasbss/main/script.lua"))()
     end)
 end)
