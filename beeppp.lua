@@ -1,4 +1,4 @@
--- Auto Config Atlas BSS
+-- Auto Config Made by @Alys_ie
 if makefolder and writefile then
     pcall(function()
         makefolder("AtlasBSS")
@@ -7,7 +7,7 @@ if makefolder and writefile then
 end
 
 print("[DEBUG] Inicializando script...")
--- Resto do script beeppp.lua...
+
 --Credit duysuts for orignal owner
 
 -------------------------------------------------
@@ -1002,9 +1002,9 @@ local function claimFreeTokens()
 
     local player = Player
 
-    local rise_info = TweenInfo.new(1, Enum.EasingStyle.Linear)
-    local move_info = TweenInfo.new(1, Enum.EasingStyle.Linear)
-    local bob_info  = TweenInfo.new(0.2, Enum.EasingStyle.Linear)
+    local TWEEN_SPEED = 100 -- Velocidade em studs por segundo
+    local rise_info = TweenInfo.new(3, Enum.EasingStyle.Linear)
+    local bob_info  = TweenInfo.new(0.4, Enum.EasingStyle.Linear)
 
     local targets = {
         CFrame.new(42, 149, -531), -- Diamond Egg
@@ -1015,7 +1015,7 @@ local function claimFreeTokens()
     }
 
     local index = 1
-    local BOB_DURATION = 2
+    local BOB_DURATION = 5 -- Aumentado para garantir a coleta
 
     while index <= #targets do
         local character = player.Character or player.CharacterAdded:Wait()
@@ -1030,7 +1030,9 @@ local function claimFreeTokens()
         rise_tween.Completed:Wait()
 
         local target = targets[index]
-        local move_tween = ts:Create(hrp, move_info, {CFrame = target})
+        local distance = (hrp.Position - target.Position).Magnitude
+        local duration = distance / TWEEN_SPEED
+        local move_tween = ts:Create(hrp, TweenInfo.new(duration, Enum.EasingStyle.Linear), {CFrame = target})
         move_tween:Play()
         move_tween.Completed:Wait()
 
@@ -1136,7 +1138,7 @@ task.spawn(function()
     task.wait(90)
     print("Executando Atlas...")
     pcall(function()
-        -- Loadstring do Atlas Hosted on GitHub
+        -- Loadstring from atlas
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris8889/atlasbss/main/script.lua"))()
     end)
 end)
