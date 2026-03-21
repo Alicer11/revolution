@@ -1,4 +1,4 @@
--- Auto Config Made by @Alys_ie
+-- Auto Config Atlas BSS
 if makefolder and writefile then
     pcall(function()
         makefolder("AtlasBSS")
@@ -7,7 +7,7 @@ if makefolder and writefile then
 end
 
 print("[DEBUG] Inicializando script...")
-
+-- Resto do script beeppp.lua...
 --Credit duysuts for orignal owner
 
 -------------------------------------------------
@@ -1135,12 +1135,17 @@ sched:add("DeleteStickers", 25, function()
 end)
 
 task.spawn(function()
-    task.wait(90)
-    print("Executando Atlas...")
-    pcall(function()
-        -- Loadstring from atlas
+    print("[DEBUG] Aguardando 15s para iniciar o Atlas...")
+    task.wait(15)
+    print("[DEBUG] Tentando carregar o Atlas via loadstring...")
+    local ok, err = pcall(function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris8889/atlasbss/main/script.lua"))()
     end)
+    if ok then
+        print("[DEBUG] Atlas carregado com sucesso!")
+    else
+        warn("[ERROR] Falha ao carregar o Atlas:", err)
+    end
 end)
 
 sched:run()
