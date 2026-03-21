@@ -1045,7 +1045,7 @@ local function claimFreeTokens()
 
         index += 1
 
-        if index <= #targets do
+        if index <= #targets then
             humanoid.Health = 0
             player.CharacterAdded:Wait()
         end
