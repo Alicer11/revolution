@@ -595,13 +595,16 @@ local function rerollBasic(col, row, eggUsed)
     end
 
     local inv = getInventory(cache)
+    print("[DEBUG] Reroll: Star=" .. (inv["Star"] or 0) .. ", Royal=" .. (inv["Royal"] or 0))
 
     if (inv["Star"] or 0) > 0 then
+        print("[DEBUG] Nosso script: Tentando usar STAR JELLY")
         Events.ConstructHiveCellFromEgg:InvokeServer(col,row,"StarJelly",1,false)
         return
     end
 
     if (inv["Royal"] or 0) > 0 then
+        print("[DEBUG] Nosso script: Tentando usar ROYAL JELLY")
         Events.ConstructHiveCellFromEgg:InvokeServer(col,row,"RoyalJelly",1,false)
         return
     end
@@ -1143,4 +1146,3 @@ task.spawn(function()
 end)
 
 sched:run()
-
