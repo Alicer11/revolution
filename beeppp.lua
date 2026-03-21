@@ -8,8 +8,8 @@ print("[DEBUG] Inicializando script...")
 -- MAIN CONFIG  (EDIT THESE)
 -------------------------------------------------
 
-local WEBHOOK = "https://discord.com/api/webhooks/123456789/qwe_rtyuiopasdfghjk_lzxcvbnm"
-local PINGID = "1071772788504924180"
+local WEBHOOK = "https://discord.com/api/webhooks/1482848828150382785/BLAC56oE29uU72HUt2iDmWjbVWrv6n8-caj6xe0liLbnrzHJ6QNwf1daz6vR3_KJ4MZo"
+local PINGID = "1060668130189385729"
 -- Only edit the below to true or false
 local CLAIMFREETOKENS = true
 local AUTO_HATCH_ENABLE = true
