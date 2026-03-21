@@ -1,4 +1,4 @@
--- Auto Config Atlas BSS
+-- Auto Config Made by @Alys_ie
 if makefolder and writefile then
     pcall(function()
         makefolder("AtlasBSS")
@@ -7,7 +7,7 @@ if makefolder and writefile then
 end
 
 print("[DEBUG] Inicializando script...")
--- Resto do script beeppp.lua...
+
 --Credit duysuts for orignal owner
 
 -------------------------------------------------
@@ -1002,7 +1002,7 @@ local function claimFreeTokens()
 
     local player = Player
 
-    local TWEEN_SPEED = 100 -- Velocidade em studs por segundo
+    local TWEEN_SPEED = 250 -- Velocidade aumentada (era 100)
     local rise_info = TweenInfo.new(3, Enum.EasingStyle.Linear)
     local bob_info  = TweenInfo.new(0.4, Enum.EasingStyle.Linear)
 
@@ -1139,7 +1139,7 @@ task.spawn(function()
     task.wait(15)
     print("[DEBUG] Tentando carregar o Atlas via loadstring...")
     local ok, err = pcall(function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris8889/atlasbss/main/script.lua"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Chris12089/atlasbss/main/script.lua"))()
     end)
     if ok then
         print("[DEBUG] Atlas carregado com sucesso!")
