@@ -13,16 +13,15 @@ local function saveAtlasConfig()
     
     local placeId = tostring(game.PlaceId)
     local paths = {
-        "AtlasBSS/configs/" .. placeId .. ".json",
+        "atlas/default.json",
         "AtlasBSS/configs/default.json",
-        "AtlasBSS/configs/config.json",
         "AtlasBSS/profiles/default.json",
-        "AtlasBSS/profiles/" .. placeId .. ".json",
-        "AtlasBSS/config.json", 
-        "AtlasBSS/configs/profile1.json",
-        "Atlas BSS/config.json", 
-        "Atlas/config.json", 
-        "AtlasBSS.json"
+        "AtlasBSS/default.json",
+        "Atlas/configs/default.json",
+        "Atlas/profiles/default.json",
+        "Atlas/default.json",
+        "default.json",
+        "AtlasBSS/configs/" .. placeId .. ".json"
     }
     for _, path in ipairs(paths) do
         pcall(function()
