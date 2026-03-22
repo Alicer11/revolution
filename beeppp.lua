@@ -575,7 +575,7 @@ local function autoFeed()
 end
 
 local function rerollBasic(col, row, eggUsed)
-    task.wait(0.4)
+    task.wait(1.0)
 
     local cache = getCache()
     if not cache or not cache.Honeycomb then return end
