@@ -197,8 +197,8 @@ local ITEM_KEYS = {
     Diamond = "Diamond",
     ["Star Egg"] = "Star",
     Basic = "Basic",
-    Royal = "RoyalJelly",
-    Star = "StarJelly",
+    Royal = "Royal Jelly",
+    Star = "Star Jelly",
 }
 
 local BOND_ITEMS = {
@@ -265,10 +265,16 @@ end
 
 local function getInventory(cache)
     cache = cache or getCache()
-    if not cache or not cache.Eggs then return {} end
+    if not cache then return {} end
     local inv = {}
     for name, key in pairs(ITEM_KEYS) do
-        inv[name] = tonumber(cache.Eggs[key]) or 0
+        local count = 0
+        if cache.Eggs and cache.Eggs[key] then
+            count = tonumber(cache.Eggs[key]) or 0
+        elseif cache.Inventory and cache.Inventory[key] then
+            count = tonumber(cache.Inventory[key]) or 0
+        end
+        inv[name] = count
     end
     return inv
 end
@@ -575,38 +581,63 @@ local function autoFeed()
 end
 
 local function rerollBasic(col, row, eggUsed)
-    task.wait(1.0)
-
-    local cache = getCache()
-    if not cache or not cache.Honeycomb then return end
-
-    local cell = cache.Honeycomb[col] and cache.Honeycomb[col][row]
-    if not cell then return end
-
-    local beeType = tostring(cell.BeeType or "")
-    local gifted = cell.Gifted == true
-
-    if gifted then
-        return
-    end
-
+    print("[DEBUG] rerollBasic iniciado para", col, row, "Egg:", eggUsed)
+    
+    -- Se não for um ovo que queremos rerollar, para aqui
     if eggUsed ~= "Basic" and eggUsed ~= "Silver" then
         return
     end
 
-    local inv = getInventory(cache)
-    print("[DEBUG] Reroll: Star=" .. (inv["Star"] or 0) .. ", Royal=" .. (inv["Royal"] or 0))
+    -- Loop de tentativa de reroll (até 3 vezes ou até não ser mais basic)
+    for i = 1, 3 do
+        task.wait(2.0) -- Espera um pouco mais para o jogo processar
 
-    if (inv["Star"] or 0) > 0 then
-        print("[DEBUG] Nosso script: Tentando usar STAR JELLY")
-        Events.ConstructHiveCellFromEgg:InvokeServer(col,row,"StarJelly",1,false)
-        return
-    end
+        local cache = getCache()
+        if not cache or not cache.Honeycomb then 
+            warn("[DEBUG] Cache falhou em rerollBasic")
+            continue 
+        end
 
-    if (inv["Royal"] or 0) > 0 then
-        print("[DEBUG] Nosso script: Tentando usar ROYAL JELLY")
-        Events.ConstructHiveCellFromEgg:InvokeServer(col,row,"RoyalJelly",1,false)
-        return
+        local cell = cache.Honeycomb[col] and cache.Honeycomb[col][row]
+        if not cell then 
+            warn("[DEBUG] Cell nao encontrada em rerollBasic")
+            continue 
+        end
+
+        local beeType = tostring(cell.BeeType or "")
+        local gifted = cell.Gifted == true
+
+        print("[DEBUG] Checando Abelha: Tipo=" .. beeType .. ", Gifted=" .. tostring(gifted))
+
+        -- Se já for gifted, nosso trabalho acabou
+        if gifted then
+            print("[DEBUG] Abelha ja e Gifted! Reroll desnecessario.")
+            return
+        end
+
+        local inv = getInventory(cache)
+        print("[DEBUG] Reroll: Star=" .. (inv["Star"] or 0) .. ", Royal=" .. (inv["Royal"] or 0))
+
+        -- Prioridade: Star Jelly (Garante uma abelha Gifted)
+        if (inv["Star"] or 0) > 0 then
+            print("[DEBUG] Nosso script: Tentando usar STAR JELLY (Tentativa " .. i .. ")")
+            local ok, err = pcall(function()
+                return Events.ConstructHiveCellFromEgg:InvokeServer(col, row, "Star Jelly", 1, false)
+            end)
+            if not ok then warn("[ERROR] Erro ao usar Star Jelly:", err) end
+            task.wait(1.0)
+        -- Fallback: Royal Jelly (Tradicional)
+        elseif (inv["Royal"] or 0) > 0 then
+            print("[DEBUG] Nosso script: Tentando usar ROYAL JELLY (Tentativa " .. i .. ")")
+            local ok, err = pcall(function()
+                return Events.ConstructHiveCellFromEgg:InvokeServer(col, row, "Royal Jelly", 1, false)
+            end)
+            if not ok then warn("[ERROR] Erro ao usar Royal Jelly:", err) end
+            task.wait(1.0)
+        else
+            print("[DEBUG] Sem Star ou Royal Jelly no inventario.")
+            break -- Sai do loop se não tiver recursos
+        end
     end
 end
 
