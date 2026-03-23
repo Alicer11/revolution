@@ -584,7 +584,8 @@ local function rerollBasic(col, row, eggUsed)
     print("[DEBUG] rerollBasic iniciado para", col, row, "Egg:", eggUsed)
     
     -- Se não for um ovo que queremos rerollar, para aqui
-    if eggUsed ~= "Basic" and eggUsed ~= "Silver" then
+    -- Ajustado para incluir Diamond e Gold se necessário, ou removido se quiser rerollar tudo
+    if eggUsed ~= "Basic" and eggUsed ~= "Silver" and eggUsed ~= "Gold" and eggUsed ~= "Diamond" then
         return
     end
 
@@ -598,9 +599,17 @@ local function rerollBasic(col, row, eggUsed)
             continue 
         end
 
-        local cell = cache.Honeycomb[col] and cache.Honeycomb[col][row]
+        -- Tenta encontrar a célula usando string keys (comum em caches do ClientStatCache)
+        local colStr, rowStr = tostring(col), tostring(row)
+        local cell = cache.Honeycomb[colStr] and cache.Honeycomb[colStr][rowStr]
+        
+        -- Fallback para chaves numéricas se string falhar
+        if not cell then
+            cell = cache.Honeycomb[col] and cache.Honeycomb[col][row]
+        end
+
         if not cell then 
-            warn("[DEBUG] Cell nao encontrada em rerollBasic")
+            warn("[DEBUG] Cell nao encontrada em rerollBasic (Tentativa " .. i .. ") para Col:" .. colStr .. " Row:" .. rowStr)
             continue 
         end
 
