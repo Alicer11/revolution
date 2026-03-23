@@ -195,7 +195,7 @@ local ITEM_KEYS = {
     Ticket = "Ticket",
     Gold = "Gold",
     Diamond = "Diamond",
-    ["Star Egg"] = "Star",
+    ["Star Egg"] = "Star Egg",
     Basic = "Basic",
     Royal = "Royal Jelly",
     Star = "Star Jelly",
@@ -269,11 +269,18 @@ local function getInventory(cache)
     local inv = {}
     for name, key in pairs(ITEM_KEYS) do
         local count = 0
-        if cache.Eggs and cache.Eggs[key] then
-            count = tonumber(cache.Eggs[key]) or 0
-        elseif cache.Inventory and cache.Inventory[key] then
-            count = tonumber(cache.Inventory[key]) or 0
+        local keyNoSpace = key:gsub("%s+", "")
+        
+        local function check(tbl, k)
+            if tbl and tbl[k] then return tonumber(tbl[k]) or 0 end
+            return 0
         end
+
+        count = check(cache.Eggs, key)
+        if count == 0 then count = check(cache.Eggs, keyNoSpace) end
+        if count == 0 then count = check(cache.Inventory, key) end
+        if count == 0 then count = check(cache.Inventory, keyNoSpace) end
+        
         inv[name] = count
     end
     return inv
@@ -583,69 +590,70 @@ end
 local function rerollBasic(col, row, eggUsed)
     print("[DEBUG] rerollBasic iniciado para", col, row, "Egg:", eggUsed)
     
-    -- Se não for um ovo que queremos rerollar, para aqui
-    -- Ajustado para incluir Diamond e Gold se necessário, ou removido se quiser rerollar tudo
     if eggUsed ~= "Basic" and eggUsed ~= "Silver" and eggUsed ~= "Gold" and eggUsed ~= "Diamond" then
         return
     end
 
-    -- Loop de tentativa de reroll (até 3 vezes ou até não ser mais basic)
-    for i = 1, 3 do
-        task.wait(2.0) -- Espera um pouco mais para o jogo processar
-
+    -- Espera a célula ser populada (o ovo chocar minimamente no cache)
+    local cell = nil
+    for i = 1, 12 do
         local cache = getCache()
-        if not cache or not cache.Honeycomb then 
-            warn("[DEBUG] Cache falhou em rerollBasic")
-            continue 
+        if cache and cache.Honeycomb then
+            local colStr, rowStr = tostring(col), tostring(row)
+            cell = (cache.Honeycomb[colStr] and cache.Honeycomb[colStr][rowStr]) or (cache.Honeycomb[col] and cache.Honeycomb[col][row])
+            if cell and (cell.BeeType or cell.Type or "") ~= "" then
+                if tostring(cell.BeeType or cell.Type or ""):lower() ~= "empty" then
+                    break
+                end
+            end
         end
+        task.wait(0.5)
+    end
 
-        -- Tenta encontrar a célula usando string keys (comum em caches do ClientStatCache)
-        local colStr, rowStr = tostring(col), tostring(row)
-        local cell = cache.Honeycomb[colStr] and cache.Honeycomb[colStr][rowStr]
+    if not cell then
+        warn("[DEBUG] Falha ao encontrar celula ou celula vazia em rerollBasic")
+        return
+    end
+
+    for i = 1, 5 do
+        task.wait(1.0)
         
-        -- Fallback para chaves numéricas se string falhar
-        if not cell then
-            cell = cache.Honeycomb[col] and cache.Honeycomb[col][row]
-        end
+        local cache = getCache()
+        if not cache or not cache.Honeycomb then continue end
 
-        if not cell then 
-            warn("[DEBUG] Cell nao encontrada em rerollBasic (Tentativa " .. i .. ") para Col:" .. colStr .. " Row:" .. rowStr)
-            continue 
-        end
+        local colStr, rowStr = tostring(col), tostring(row)
+        cell = (cache.Honeycomb[colStr] and cache.Honeycomb[colStr][rowStr]) or (cache.Honeycomb[col] and cache.Honeycomb[col][row])
+        
+        if not cell then continue end
 
-        local beeType = tostring(cell.BeeType or "")
+        local beeType = tostring(cell.BeeType or cell.Type or "")
         local gifted = cell.Gifted == true
 
-        print("[DEBUG] Checando Abelha: Tipo=" .. beeType .. ", Gifted=" .. tostring(gifted))
+        print("[DEBUG] Reroll: Abelha=" .. beeType .. ", Gifted=" .. tostring(gifted))
 
-        -- Se já for gifted, nosso trabalho acabou
         if gifted then
             print("[DEBUG] Abelha ja e Gifted! Reroll desnecessario.")
             return
         end
 
         local inv = getInventory(cache)
-        print("[DEBUG] Reroll: Star=" .. (inv["Star"] or 0) .. ", Royal=" .. (inv["Royal"] or 0))
+        print("[DEBUG] Recurso Reroll: Star=" .. (inv["Star"] or 0) .. ", Royal=" .. (inv["Royal"] or 0))
 
-        -- Prioridade: Star Jelly (Garante uma abelha Gifted)
         if (inv["Star"] or 0) > 0 then
-            print("[DEBUG] Nosso script: Tentando usar STAR JELLY (Tentativa " .. i .. ")")
-            local ok, err = pcall(function()
-                return Events.ConstructHiveCellFromEgg:InvokeServer(col, row, "Star Jelly", 1, false)
+            print("[DEBUG] Usando STAR JELLY...")
+            pcall(function()
+                Events.ConstructHiveCellFromEgg:InvokeServer(col, row, "Star Jelly", 1, false)
             end)
-            if not ok then warn("[ERROR] Erro ao usar Star Jelly:", err) end
-            task.wait(1.0)
-        -- Fallback: Royal Jelly (Tradicional)
+            task.wait(1.5) -- Evita crashes no LocalBees ao mudar modelo muito rapido
         elseif (inv["Royal"] or 0) > 0 then
-            print("[DEBUG] Nosso script: Tentando usar ROYAL JELLY (Tentativa " .. i .. ")")
-            local ok, err = pcall(function()
-                return Events.ConstructHiveCellFromEgg:InvokeServer(col, row, "Royal Jelly", 1, false)
+            print("[DEBUG] Usando ROYAL JELLY...")
+            pcall(function()
+                Events.ConstructHiveCellFromEgg:InvokeServer(col, row, "Royal Jelly", 1, false)
             end)
-            if not ok then warn("[ERROR] Erro ao usar Royal Jelly:", err) end
-            task.wait(1.0)
+            task.wait(1.5)
         else
-            print("[DEBUG] Sem Star ou Royal Jelly no inventario.")
-            break -- Sai do loop se não tiver recursos
+            print("[DEBUG] Sem Star ou Royal Jelly para reroll.")
+            break
         end
     end
 end
